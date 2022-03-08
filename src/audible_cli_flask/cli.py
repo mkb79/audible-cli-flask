@@ -1,3 +1,4 @@
+import json
 import logging
 
 import click
@@ -13,36 +14,63 @@ audible_cli_session = None
 audible_cli_client = None
 
 
-class RESTapp(Resource):
+def convert_response_content(resp):
+    try:
+        return resp.json()
+    except json.JSONDecodeError:
+        return {"reason_phrase": resp.reason_phrase, "message": resp.text}
+
+
+def make_api_request(method, path, **kwargs):
+    url = audible_cli_client._prepare_api_path(path)
+
+    params = request.args
+    if params:
+        kwargs["params"] = params
+
+    json_body = request.get_json()
+    if json_body is not None:
+        kwargs["json"] = json_body
+
+    resp = audible_cli_client.session.request(method, url, **kwargs)
+    
+    json_resp = convert_response_content(resp)
+    status_code = resp.status_code
+
+    headers = {}
+    ignore_headers = (
+        "content-length", "date", "content-type", "transfer-encoding"
+    )
+    for k, v in resp.headers.items():
+        if k not in ignore_headers:
+            headers[k] = v
+
+    return json_resp, status_code, headers
+
+
+class AudibleAPI(Resource):
 
     @staticmethod
     def get(path=""):
-        args = request.args
-        r = audible_cli_client._request("GET", path, params=args)
-        return r
+        return make_api_request("GET", path)
 
     @staticmethod
     def post(path=""):
-        json_body = request.get_json()
-        r = audible_cli_client._request("POST", path, json=json_body)
-        return r
+        return make_api_request("POST", path)
 
     @staticmethod
     def put(path=""):
-        json_body = request.get_json()
-        r = audible_cli_client._request("PUT", path, json=json_body)
-        return r
+        return make_api_request("PUT", path)
 
     @staticmethod
     def delete(path=""):
-        r = audible_cli_client._request("DELETE", path)
-        return r
+        return make_api_request("DELETE", path)
 
 
 def create_app():
     app = Flask(__name__)
     api = Api(app)
-    api.add_resource(RESTapp, '/', '/<path:path>')
+    api.add_resource(AudibleAPI, '/', '/<path:path>')
     return app
 
 
