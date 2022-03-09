@@ -72,7 +72,7 @@ class AudibleAPI(Resource):
 def create_app():
     app = Flask(__name__)
     api = Api(app)
-    api.add_resource(AudibleAPI, '/', '/<path:path>')
+    api.add_resource(AudibleAPI, '/api/<path:path>')
     return app
 
 
@@ -99,4 +99,4 @@ def cli(ctx):
     ctx.obj = obj
 
 
-make_web_command(create_app(),group=cli)
+make_web_command(create_app(), group=cli)
