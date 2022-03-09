@@ -40,7 +40,8 @@ def make_api_request(method, path, **kwargs):
 
     headers = {}
     ignore_headers = (
-        "content-length", "date", "content-type", "transfer-encoding"
+        "content-length", "date", "content-type", "transfer-encoding",
+        "content-encoding"
     )
     for k, v in resp.headers.items():
         if k not in ignore_headers:
