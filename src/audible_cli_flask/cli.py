@@ -6,6 +6,7 @@ from audible import Client
 from flask import Flask
 from flask.cli import FlaskGroup, ScriptInfo
 from flask_restful import Api, Resource, request
+from more_click import make_web_command
 
 
 logger = logging.getLogger("audible_cli.cmds.cmd_flask")
@@ -95,3 +96,6 @@ def cli(ctx):
         set_debug_flag=ctx.command.set_debug_flag
     )
     ctx.obj = obj
+
+
+make_web_command(create_app(),group=cli)

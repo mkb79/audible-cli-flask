@@ -38,8 +38,9 @@ setup(
          "Programming Language :: Python :: 3.8"
     ],
     install_requires=[
-        "audible_cli",
-        "flask-restful"
+        "audible-cli",
+        "flask-restful",
+        "more-click"
     ],
     python_requires=">=3.6",
     keywords="Audible, API, async, cli",
